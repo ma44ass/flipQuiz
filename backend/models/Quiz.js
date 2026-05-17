@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // 1. Define the Flashcard Schema (The Individual Card Blueprint)
-const FlashcardSchema = new mongoose.Schema({
+const flashcardSchema = new mongoose.Schema({
   question: {
     type: String,
     required: [true, 'Please provide a flashcard question'],
@@ -25,7 +25,7 @@ function arrayLimit(val) {
 }
 
 // 2. Define the Main Quiz Schema (The Deck Container)
-const QuizSchema = new mongoose.Schema({
+const quizSchema = new mongoose.Schema({
   title: {
     type: String,
     required: [true, 'Please provide a quiz title'],
@@ -49,4 +49,4 @@ const QuizSchema = new mongoose.Schema({
 });
 
 // 3. Compile and Export
-module.exports = mongoose.model('Quiz', QuizSchema);
+module.exports = mongoose.model('Quiz', quizSchema);
