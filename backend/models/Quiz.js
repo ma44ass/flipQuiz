@@ -41,7 +41,7 @@ const quizSchema = new mongoose.Schema({
     ref: 'User', // Points directly to our User Model
     required: true
   },
-  cards: [FlashcardSchema], // Embedding our array of cards right inside the deck!
+  cards: [flashcardSchema], // Embedding our array of cards right inside the deck!
   createdAt: {
     type: Date,
     default: Date.now
