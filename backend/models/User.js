@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 //Blueprint Structure:
-const userSchema = new mongoose.Aggregate.Schema({
+const userSchema = new mongoose.Schema({
     username:{
         type: String,
         required: [true, 'Please provide a username'],
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Aggregate.Schema({
 userSchema.pre('save', async function (next){
     //Only run this password hashing engine if the password field was actually modified
     if(!this.isModified('password')){
-        return next()
+        return
     }
 
     try {
@@ -50,17 +50,15 @@ userSchema.pre('save', async function (next){
         /*salt is a random string of unique cryptographic "noise" generated for each individual user. 
         The 10 represents the "salt rounds"the work factor. 
         10 rounds strikes the perfect balance between being incredibly secure and processing quickly.*/
-
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
   } catch (error) {
     next(error);
   }
 });
 
     
-UserSchema.methods.matchPasswords = async function (enteredPassword) {
+userSchema.methods.matchPasswords = async function (enteredPassword) {
     /*Safely compare entered passwords with the database hash: 
     take the password they typed into the login box, hash it using the exact same salt
     and see if the two resulting hashes match perfectly.*/
@@ -68,4 +66,4 @@ UserSchema.methods.matchPasswords = async function (enteredPassword) {
 };
 
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', userSchema);
