@@ -47,8 +47,10 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+    
     try {
     //Find user in DB and explicitly tell Mongoose to include the hidden password field Because we set select: false in our model for security
+        const { email, password } = req.body;
         const user = await User.findOne({email}).select('+password');
         if (!user){
             return res.status(401).json({
