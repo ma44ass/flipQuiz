@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db'); // Clean import
-const authRoutes = require('./routes/authRoutes');
+const connectDB = require('./backend/config/db');
+const authRoutes = require('./backend/routes/authRoutes');
 
 // Load env variables
 dotenv.config();
