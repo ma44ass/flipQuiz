@@ -17,10 +17,13 @@ app.use(express.json());
 
 // Mount Authentication Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', require('./routes/authRoutes'));
 
 app.get('/', (req, res) => {
   res.send('API is running smoothly...');
 });
+
+app.use('/api/quizzes', require('./routes/quizRoutes'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
