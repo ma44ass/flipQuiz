@@ -16,6 +16,14 @@ exports.getUserQuizzes = async (req, res) => {
   res.status(200).json(quizzes);
 };
 
+// @desc    Get a single quiz deck by ID
+// @route   GET /api/quizzes/:id
+// @access  Private
+exports.getQuiz = async (req, res) => {
+    const quiz = await quizService.getQuizById(req.params.id);
+    res.status(200).json(quiz);
+}
+
 // @desc    Update a quiz deck details or cards
 // @route   PUT /api/quizzes/:id
 // @access  Private (Only the creator can update)

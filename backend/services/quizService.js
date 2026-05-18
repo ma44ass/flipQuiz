@@ -21,6 +21,19 @@ class QuizService {
     return await Quiz.find({ creator: userId });
   }
 
+  async getQuizById(quizId) {
+    const quiz = await Quiz.findById(quizId);
+    
+    if (!quiz) {
+      const error = new Error('Quiz not found');
+      error.statusCode = 404; // This stamps it for your global error middleware!
+      throw error;
+    }
+    
+    return quiz;
+  }
+
+
   // 3. Update a quiz with explicit ownership validation
   async updateQuiz(quizId, updateData, userId) {
     const quiz = await Quiz.findById(quizId);
