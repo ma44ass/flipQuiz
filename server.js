@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./backend/config/db');
 const authRoutes = require('./backend/routes/authRoutes');
+const {errorHandler} = require('./backend/middleware/errorMiddleware')
 
 // Load env variables
 dotenv.config();
@@ -24,6 +25,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/quizzes', require('./backend/routes/quizRoutes'));
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
