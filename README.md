@@ -10,6 +10,9 @@ Key Features
     Robust Cloud Database Tunnel: Fully integrated with MongoDB Atlas cloud clusters utilizing persistent replica-set configurations to securely store user profiles, quizzes, and score histories.
 
     Decoupled Architecture: Clean separation between the client-side presentation layer and the RESTful server-side application programming interface (API).
+    Input Validation Guard: Front-gate request filtering powered by Zod schemas to intercept malformed data at the routing layer, protecting server resources and optimizing API performance.
+
+    Centralized Error Management: A unified asynchronous exception-handling pipeline utilizing custom middleware to eliminate boilerplate try/catch blocks and ensure deterministic JSON error payloads.
 
 Tech Stack
 Frontend (Client Layer)
@@ -26,6 +29,8 @@ Backend (Server Layer)
 
     Object Modeling (ODM): Mongoose
 
+    Schema Validation: Zod (Data integrity enforcement)
+
 Database & Dev Tools
 
     Cloud Database: MongoDB Atlas
@@ -33,4 +38,6 @@ Database & Dev Tools
     Environment Safety: Dotenv (Variable masking)
 
     Process Monitor: Nodemon
+
+    API Testing client: Insomnia
 
