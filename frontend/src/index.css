@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  /* Injecting your custom brand colors */
+  --color-brutal-pink: #FC8AE5;
+  --color-brutal-blue: #92ADEB;
+  --color-brutal-yellow: #F8CB46;
+  --color-brutal-dark: #2E1401;
+  --color-brutal-bg: #F7F3F0;
+
+  /* Custom sharp Neo-Brutalist shadows */
+  --shadow-brutal: 4px 4px 0px 0px #2E1401;
+  --shadow-brutal-hover: 2px 2px 0px 0px #2E1401;
+}
+
+/* Global Reset using your new theme variables */
+body {
+  background-color: var(--color-brutal-bg);
+  color: var(--color-brutal-dark);
+  font-family: system-ui, -apple-system, sans-serif;
+}

@@ -1,8 +1,8 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const connectDB = require('./backend/config/db');
-const authRoutes = require('./backend/routes/authRoutes');
-const {errorHandler} = require('./backend/middleware/errorMiddleware')
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+const {errorHandler} = require('./middleware/errorMiddleware')
 
 // Load env variables
 dotenv.config();
