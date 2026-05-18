@@ -1,56 +1,88 @@
+# FlipQuiz - Backend Architecture
+
+## Overview
+FlipQuiz is a modern web application designed for creating and managing quiz decks using interactive flashcards. 
+The backend architecture follows a highly decoupled, layered structure ensuring scalability, security, maintainability, and clean separation of concerns.
+
+---
+
+## Technical Stack
+- **Runtime Environment:** Node.js
+- **Framework:** Express.js
+- **Database:** MongoDB via Mongoose Object Data Modeling (ODM)
+- **Data Validation:** Zod
+- **Testing Suite:** Jest
+
+---
+
+## Directory Structure & Data Flow Diagram
+
+```text
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        LAYER 1: THE ROUTER GATE                        │
-│             (File: backend/routes/quizRoutes.js)                       │
+│                        LAYER 1: THE ROUTING GATE                       │
+│                     (Files: backend/routes/*)                          │
 ├────────────────────────────────────────────────────────────────────────┤
-│  • Listens for HTTP methods (GET, POST, PUT, DELETE)                   │
-│  • Uses 'protect' middleware to check the user's JWT Bearer token      │
-│  • Uses 'validate(quizSchema)' to let Zod check data formats           │
-│  • Maps the endpoint (e.g., GET /:id) straight to the Controller       │
+│  • Defines declarative application endpoints (GET, POST, PUT, DELETE). │
+│  • Acts as the primary entry interface for all incoming client traffic.│
+└──────────────────────────────────┬─────────────────────────────────────┘
+                                   │
+                                   ▼
+            MIDDLEWARE CHECKPOINT: SECURITY & DATA SANITATION
+          (Files: backend/middleware/* & backend/validations/*)
+          ├──────────────────────────────────────────────────────┤
+          │  1. 'protect' -> Verifies JWT signatures & headers   │
+          │  2. 'validateBody' -> Zod schemas guard data shapes  │
+          │ *Cuts execution & sends 401||400 if validation fails.*
+                                   │
+                                   ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                        LAYER 2: THE CONTROLLER                         │
+│                  (Files: backend/controllers/*)                        │
+├────────────────────────────────────────────────────────────────────────┤
+│  • Purely orchestrates HTTP request and response states (req, res).    │
+│  • Extracts traffic inputs (req.params.id, req.body) cleanly.          │
+│  • Forwards parsed data arguments straight down into the Service Layer.│
+│  • ZERO boilerplate try/catch blocks due to express-async-errors.      │
 └──────────────────────────────────┬─────────────────────────────────────┘
                                    │
                                    ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│                      LAYER 2: THE CONTROLLER                           │
-│             (File: backend/controllers/quizController.js)              │
+│                  LAYER 3: THE SERVICE LAYER (THE BRAIN)                │
+│                    (Files: backend/services/*)                         │
 ├────────────────────────────────────────────────────────────────────────┤
-│  • Purely handles HTTP inputs and outputs (req, res)                   │
-│  • Extracts URL params (req.params.id) and body data                   │
-│  • Passes variables down into the Service Layer Wall                   │
-│  • ONLY handles the 200 OK or 201 Created success responses            │
-│  • Has NO try/catch blocks because 'express-async-errors' hooks here   │
+│  • Encapsulates 100% of FlipQuiz's core business logic processing.     │
+│  • Completely decoupled from Express context (no 'req' or 'res').      │
+│  • Evaluates business authorization rules (e.g., creator ownership).   │
+│  • Throws semantic errors that bubble straight up the call stack.      │
 └──────────────────────────────────┬─────────────────────────────────────┘
                                    │
                                    ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│                LAYER 3: THE SERVICE LAYER (THE WALL)                   │
-│             (File: backend/services/quizService.js)                    │
+│                      LAYER 4: MONGOOSE MODELS & DB                     │
+│                     (Files: backend/models/*)                          │
 ├────────────────────────────────────────────────────────────────────────┤
-│  • The brain! Contains 100% of FlipQuiz's core business logic          │
-│  • Independent of Express (doesn't know what 'req' or 'res' means)     │
-│  • Runs authorization rules (Checks if quiz.creator === userId)        │
-│  • Inspects database outcomes. If data is missing/null:                │
-│    ──► Instantly stamps 'error.statusCode = 404'                       │
-│    ──► Triggers 'throw error;' to snap the pipeline shut               │
-└──────────────────────────────────┬─────────────────────────────────────┘
-                                   │
-                                   ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                    LAYER 4: MONGOOSE MODELS & DB                       │
-│             (File: backend/models/Quiz.js)                             │
-├────────────────────────────────────────────────────────────────────────┤
-│  • Enforces the strict data schema at the MongoDB database level       │
-│  • Performs the raw queries (find, findById, findByIdAndUpdate)        │
-│  • Connects directly to your live MongoDB Atlas cluster                │
+│  •Enforces structural schemas and hooks directly at the database level.│
+│  • Safeguards fields (e.g., select: false on hashes) against leaks.    │
+│  • Performs raw MongoDB cluster queries via Mongoose ODM engines.      │
 └────────────────────────────────────────────────────────────────────────┘
 
-
+  ======================== THE ERROR INTERCEPTOR ======================== 
 ┌────────────────────────────────────────────────────────────────────────┐
-│                    THE TESTING LOOP (Jest & Watch Mode)                │
-│             (File: backend/services/quizService.test.js)               │
+│                GLOBAL EXCEPTION BOUNDARY (AOP PIPELINE)                │
+│               (File: backend/middleware/errorMiddleware.js)            │
 ├────────────────────────────────────────────────────────────────────────┤
-│  • Runs locally in terminal via '--watchAll'                           │
-│  • Uses 'jest.mock("../models/Quiz")' to create a fake database wall   │
-│  • Tests Layer 3 (Service Layer) completely in isolation               │
-│  • Simulates Mongoose returning valid mock data ──► Expects Green      │
-│  • Simulates Mongoose returning null ─────────────► Expects 404 Throw  │
+│  • Monitors the entire runtime call stack automatically.               │
+│  • Catches Zod validation errors, JWT drops, and custom Service slips. │
+│  • Intercepts bubbles globally, parsing them into standard client JSON.│
+└────────────────────────────────────────────────────────────────────────┘
+
+  ======================== QUALITY ASSURANCE =========================== 
+┌────────────────────────────────────────────────────────────────────────┐
+│                   THE ISOLATED TESTING INFRASTRUCTURE                  │
+│                     (Files: backend/**/*.test.js)                      │
+├────────────────────────────────────────────────────────────────────────┤
+│  • Companion test blocks sit right next to production files.           │
+│  • Uses Jest to completely mock external dependencies and models.      │
+│  • Asserts layer functions in isolation for absolute determinism.      │
+│  • Serves as an automated quality assurance gate for development.      │
 └────────────────────────────────────────────────────────────────────────┘
